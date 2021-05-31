@@ -1,109 +1,171 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta charset="utf-8" />
     <title>Counter - Vanilla Redux Example</title>
     <script src="https://unpkg.com/redux@latest/dist/redux.min.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Simple Counter</h1>
     <div>
-        <button id="button-decrement">
-            👇 Decrement
-        </button>
-        <span id="count">0</span>
-        <button id="button-increment">
-            Increment ☝️
-        </button>
+      <button id="button-decrement">👇 Decrement</button>
+      <span id="count">0</span>
+      <button id="button-increment">Increment ☝️</button>
     </div>
     <script>
-        var buttonIncrement = document.getElementById('button-increment');
-        var buttonDecrement = document.getElementById('button-decrement');
+      var buttonIncrement = document.getElementById("button-increment");
+      var buttonDecrement = document.getElementById("button-decrement");
 
-        /**
-         *  First off, we design our (very simple) state shape with the initalState
-         *  Just a simple JavaScript object which describes any dynamic data that our app needs
-         **/
-        var initalState = {
-            counter: 0
-        };
+      /**
+       *  First off, we design our (very simple) state shape with the initalState
+       *  Just a simple JavaScript object which describes any dynamic data that our app needs
+       **/
+      var initalState = {
+        counter: 0,
+      };
 
-        /**
-         *  Next, define (as strings) the names of actions which might take place in your app
-         *
-         *  These should describe "what happened" and should not describe how they will change the state
-         **/
-        var actionTypes = {
-            INCREMENT: 'INCREMENT',
-            DECREMENT: 'DECREMENT',
-        };
-        /**
-         *  Action creators are factory functions which return our action objects
-         **/
-        var actionCreators = {
-            increment: function () {
+      /**
+       *  Next, define (as strings) the names of actions which might take place in your app
+       *
+       *  These should describe "what happened" and should not describe how they will change the state
+       *
+       * it helps to store actions names in a separate variable such as 'actionTypes' as it helpsfor reusability
+       **/
+      var actionTypes = {
+        INCREMENT: "INCREMENT",
+        DECREMENT: "DECREMENT",
+      };
+      /**
+       *  Action creators are factory functions which return our action objects (return oour actions as objects)
+       * 
+       * Me: actions always include a 'type' property, which is the name of the action. Wecan include other things such as what will this actions do, or other info. example below:
+            * const actionCreator = {
+                increment: function (incrementBy) {
                 return {
-                    type: actionTypes.INCREMENT
+                    type: actionTypes.increment,
+                    incrementBy: incrementBy,
                 };
-            },
-            decrement: function () {
-                return {
-                    type: actionTypes.DECREMENT
-                };
-            },
-        };
+                },
+      };
 
-        /**
-         *  This is the reducer function which we
-         *  Remember: no side-effects! This should be a pure function!
-         */
-        var reducer = function (state, action) {
-            //  Return inital state if previously undefined (when Redux first calls the reducer)
-            if (typeof state === 'undefined') {
-                return initalState;
-            }
-            if (action.type === actionTypes.INCREMENT) {
-                return {
-                    counter: state.counter + 1
-                };
-            }
-            if (action.type === actionTypes.DECREMENT) {
-                return {
-                    counter: state.counter - 1
-                };
-            }
-            //  Always return the previous state if the action is unknown
-            return state;
-        };
+      * actionCreator can be called like this:
+      *> actionCreator.increment() 
+       **/
+      var actionCreators = {
+        increment: function () {
+          return {
+            type: actionTypes.INCREMENT,
+          };
+        },
+        decrement: function () {
+          return {
+            type: actionTypes.DECREMENT,
+          };
+        },
+      };
 
-        /**
-         *  Create our store, which allows us to:
-         *  - read the state
-         *  - dispatch actions
-         *  - subscribe to dispatches
-         */
-        var store = Redux.createStore(reducer);
+      /**
+       *  This is the reducer function which we
+       *  Remember: no side-effects! (if =value  => =result) This should be a pure function!
+       *
+       *
+       * NOTE: there are another way to write a reducer to increase reusability, see appendix in the bottom
+       */
 
+      var reducer = function (state, action) {
+        //  Return inital state if previously undefined (when Redux first calls the reducer)
+        if (typeof state === "undefined") {
+          return initalState;
+        }
+        if (action.type === actionTypes.INCREMENT) {
+          return {
+            counter: state.counter + 1,
+          };
+        }
+        if (action.type === actionTypes.DECREMENT) {
+          return {
+            counter: state.counter - 1,
+          };
+        }
+        //  Always return the previous state if the action is unknown
+        return state;
+      };
 
-        //  Dispatch the correct actions when each button is clicked
-        buttonIncrement.addEventListener('click', function () {
-            store.dispatch(actionCreators.increment());
-        });
-        buttonDecrement.addEventListener('click', function () {
-            store.dispatch(actionCreators.decrement());
-        });
+      /**
+       *  Create our store, which allows us to:
+       *  - read the state
+       *  - dispatch actions
+       *  - subscribe to dispatches
+       */
+      /* arguments from a storeÑ
+        1 - reducer (if there is any a rootreducer)
+        2 - initialState ( this is optional)
+        3 - enhancenar ( this is optional) it helps to combine the store with third parties such as a middleware, it can be used with componse(). see docs.
+        EXAMPLE:
+              const store = Redux.createStore(reducer(), { count: 5 });
+*/
 
+      var store = Redux.createStore(reducer);
 
-        /**
-         *  This is our listener, which allows us to
-         **/
-        var counterElement = document.getElementById('count');
-        var updateCounter = function () {
-            var state = store.getState();
-            counterElement.innerText = state.counter;
-        };
+      //  Dispatch the correct actions when each button is clicked
+      buttonIncrement.addEventListener("click", function () {
+        store.dispatch(actionCreators.increment());
+      });
+      buttonDecrement.addEventListener("click", function () {
+        store.dispatch(actionCreators.decrement());
+      });
 
-        store.subscribe(updateCounter);
+      /**
+       *  This is our listener, which allows us to update an element each time an action has been dispatched in the store
+       **/
+      var counterElement = document.getElementById("count");
+      var updateCounter = function () {
+        var state = store.getState();
+        counterElement.innerText = state.counter;
+      };
+
+      /*  every time the store updates the subscribers will be updated */
+      store.subscribe(updateCounter);
+
+      /**
+     * ======================================================
+     *                  APPENDIX
+     * ======================================================
+     * a) another way to write reducers
+     * ---------------------------------
+     * steps:
+     *  1- create a actionMap to map the reducers
+     *  2- write the reducer function
+     * 
+     *  //** object with two reducer functions
+      //using this 'actionMap' is better than having a switch statement
+      // [actionTypes.increment] is a DYNAMIC PROPERTY*/
+      //   const actionMap = {
+      //     [actionTypes.increment]: function (state, action) {
+      //       return { count: state.count + 1 };
+      //     },
+      //     [actionTypes.decrement]: function (state, action) {
+      //       return { count: state.count - 1 };
+      //     },
+      //   };
+
+      //> state = initialState   ----// ** this is so that if 'state' is not defined then is assigned to the initial state ('defaultState'), otherwise if 'state' is undefined the reducer doesn't work when setting up the store initially */
+      //   let reducer = function (state = initialState, action) {
+      //     console.log(action);
+      //     let reducerFunction = actionMap[action.type];
+      //     if (reducerFunction) {
+      //       return reducerFunction(state, action);
+      //     }
+      //    // // (the simple version of a reducer is to write each of the reducers function according to the type)
+      //    // // switch (action.type) {
+      //    // //   case actionTypes.increment:
+      //    // //     return { count: state.count + 1 };
+      //    // //   case actionTypes.decrement:
+      //    // //     return { count: state.count - 1 };
+      //    // // }
+
+      //     return state;
+      //   };
     </script>
-</body>
+  </body>
 </html>
